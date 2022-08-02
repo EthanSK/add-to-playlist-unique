@@ -1,0 +1,28 @@
+{
+  "name": "add-to-playlist-unique",
+  "version": "1.0.0",
+  "description": "Adds YouTube videos from source playlists to a target playlist, and ensures the target playlist is kept unique",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-and-run": "tsc && node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EthanSK/add-to-playlist-unique.git"
+  },
+  "author": "Ethan Sarif-Kattan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EthanSK/add-to-playlist-unique/issues"
+  },
+  "homepage": "https://github.com/EthanSK/add-to-playlist-unique#readme",
+  "devDependencies": {
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "google-auth-library": "^8.1.1",
+    "googleapis": "^105.0.0"
+  }
+}
