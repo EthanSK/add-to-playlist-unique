@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { google, youtube_v3 } from "googleapis";
 
-const sourcePlaylists: string[] = JSON.parse(
+const sourcePlaylistIds: string[] = JSON.parse(
   process.env.SOURCE_PLAYLIST_IDS ?? "[]"
 );
 
@@ -11,7 +11,7 @@ if (!targetPlaylistId) {
   throw new Error("Target Playlist ID not set");
 }
 
-if (!sourcePlaylists || sourcePlaylists?.length === 0) {
+if (!sourcePlaylistIds || sourcePlaylistIds?.length === 0) {
   console.warn(
     "No source playlists! All that will happen is the target playlist will be made unique"
   );
@@ -79,20 +79,55 @@ async function makePlaylistUnique(
   } //needs to be in order, can't do all in parallel, or scanneditems won't be right
 }
 
+async function addSourcePlaylistToTargetPlaylist(
+  sourcePlaylistId: string,
+  targetPlaylistId: string
+) {
+  const sourcePlaylistItems = await getAllVideosInPlaylist(sourcePlaylistId);
+  const targetPlaylistItems = await getAllVideosInPlaylist(targetPlaylistId); //get it here again in case there are duplicates, because there might be duplicates across different source playlists.
+
+  for (const sourceItem of sourcePlaylistItems) {
+    if (
+      !targetPlaylistItems
+        .map((el) => el.contentDetails?.videoId)
+        .includes(sourceItem.contentDetails?.videoId) &&
+      sourceItem.contentDetails?.videoId
+    ) {
+      await addVideoToPlaylist(
+        sourceItem.contentDetails.videoId,
+        targetPlaylistId
+      );
+    }
+  }
+}
+
+async function addVideoToPlaylist(videoId: string, playlistId: string) {
+  return youtube.playlistItems.insert({
+    part: ["snippet"],
+    requestBody: {
+      snippet: {
+        playlistId,
+        resourceId: { videoId, kind: "youtube#video" },
+      },
+    },
+  });
+}
+
 async function run() {
   let playlistItems = await getAllVideosInPlaylist(targetPlaylistId);
-  console.log("num vids in playlist: ", playlistItems.length);
+  console.log("num vids in playlist before: ", playlistItems.length);
   console.log(playlistItems.map((el) => el.contentDetails?.videoId));
 
   await makePlaylistUnique(playlistItems);
 
-  let playlistItemsUnique = await getAllVideosInPlaylist(targetPlaylistId);
+  for (const sourcePlaylistId of sourcePlaylistIds) {
+    await addSourcePlaylistToTargetPlaylist(sourcePlaylistId, targetPlaylistId);
+  }
 
-  console.log(
-    "num unique in playlistItemsUnique: ",
-    playlistItemsUnique.length
-  );
-  console.log(playlistItemsUnique.map((el) => el.contentDetails?.videoId));
+  let playlistItemsAfter = await getAllVideosInPlaylist(targetPlaylistId);
+
+  console.log("num vids in playlist after:", playlistItemsAfter.length);
+  console.log(playlistItemsAfter.map((el) => el.contentDetails?.videoId));
 }
 
 run();
