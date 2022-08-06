@@ -5,3 +5,5 @@ YOUTUBE_OAUTH_REFRESH_TOKEN=<go to google's oauth playground, enter the oauth cl
 TARGET_PLAYLIST_ID=<the ID of the target playlist>
 
 SOURCE_PLAYLIST_IDS=["<source playlist ID 1>", "<source playlist ID 2>", "<etc etc...make sure you keep the quotation marks>"]
+
+ 

@@ -45,7 +45,23 @@ async function getAllVideosInPlaylist(playlistId: string) {
     nextPageToken = nextPage.nextPageToken;
   }
 
+  //doesn't work, I get forbidden playlistItemsNotAccessible
+  // if (process.env.REMOVE_DELETED_VIDEOS_FROM_PLAYLIST) {
+  //   for (const item of items) {
+  //     if (item.snippet?.title === "Deleted video" && item.id) {
+  //       await deleteVideoFromPlaylist(item.id);
+  //     }
+  //   }
+  // }
+
   return items;
+}
+
+async function deleteVideoFromPlaylist(playlistItemId: string) {
+  //not using this any more coz appaz i can't remove a deleted video! it gives forbidden: playlistItemsNotAccessible
+  return youtube.playlistItems.delete({
+    id: playlistItemId,
+  });
 }
 
 async function getNextPageInPlaylist(playlistId: string, pageToken?: string) {
@@ -54,7 +70,7 @@ async function getNextPageInPlaylist(playlistId: string, pageToken?: string) {
       playlistId,
       pageToken: pageToken,
       maxResults: PLAYLIST_PAGE_SIZE,
-      part: ["contentDetails"],
+      part: ["contentDetails", "status", "snippet"],
     })
     .then((res) => {
       return res.data;
@@ -91,7 +107,8 @@ async function addSourcePlaylistToTargetPlaylist(
       !targetPlaylistItems
         .map((el) => el.contentDetails?.videoId)
         .includes(sourceItem.contentDetails?.videoId) &&
-      sourceItem.contentDetails?.videoId
+      sourceItem.contentDetails?.videoId &&
+      sourceItem.snippet?.title !== "Deleted video" //otherwise error
     ) {
       await addVideoToPlaylist(
         sourceItem.contentDetails.videoId,
@@ -131,3 +148,5 @@ async function run() {
 }
 
 run();
+
+//NOTE: it fails with some "precondition check failed" error if there is a deleted video in any playlist. We need to account for this case.
