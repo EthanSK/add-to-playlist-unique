@@ -90,7 +90,8 @@ async function makePlaylistUnique(
     ) {
       scannedItems.push(item);
     } else {
-      if (item.id) await youtube.playlistItems.delete({ id: item.id });
+      if (item.id && isVideoAvailable(item.snippet?.title))
+        await youtube.playlistItems.delete({ id: item.id });
     }
   } //needs to be in order, can't do all in parallel, or scanneditems won't be right
 }
@@ -108,7 +109,7 @@ async function addSourcePlaylistToTargetPlaylist(
         .map((el) => el.contentDetails?.videoId)
         .includes(sourceItem.contentDetails?.videoId) &&
       sourceItem.contentDetails?.videoId &&
-      sourceItem.snippet?.title !== "Deleted video" //otherwise error
+      isVideoAvailable(sourceItem.snippet?.title) //otherwise error
     ) {
       await addVideoToPlaylist(
         sourceItem.contentDetails.videoId,
@@ -145,6 +146,10 @@ async function run() {
 
   console.log("num vids in playlist after:", playlistItemsAfter.length);
   console.log(playlistItemsAfter.map((el) => el.contentDetails?.videoId));
+}
+
+function isVideoAvailable(videoTitle?: string | null) {
+  return videoTitle !== "Private video" && videoTitle !== "Deleted video";
 }
 
 run();
