@@ -154,4 +154,4 @@ function isVideoAvailable(videoTitle?: string | null) {
 
 run();
 
-//NOTE: it fails with some "precondition check failed" error if there is a deleted video in any playlist. We need to account for this case.
+//NOTE: it fails with some "precondition check failed" error if there is a deleted video or private video in any playlist. We need to account for this case.
