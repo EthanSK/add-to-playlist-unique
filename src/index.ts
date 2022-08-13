@@ -111,6 +111,7 @@ async function addSourcePlaylistToTargetPlaylist(
       sourceItem.contentDetails?.videoId &&
       isVideoAvailable(sourceItem.snippet?.title) //otherwise error
     ) {
+      console.log("adding video with id: ", sourceItem.contentDetails.videoId);
       await addVideoToPlaylist(
         sourceItem.contentDetails.videoId,
         targetPlaylistId
