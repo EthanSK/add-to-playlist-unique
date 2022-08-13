@@ -8,6 +8,7 @@ Adds YouTube videos from source playlists to a target playlist, and ensures the 
 - Set up project with `npm install`
 - Copy the `.env.tpl` to a `.env` file, and replace all the fields with proper values
 - Run with `npm run build-and-run`
+- If it stops working, try getting a new refresh token
 
 ### Obtaining OAuth credentials
 
